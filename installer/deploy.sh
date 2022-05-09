@@ -2,7 +2,6 @@
 #
 # coding: utf-8
 # author: liuchao
-# date: 2022.04.09
 # usage: deploy kvm environment.
 
 
