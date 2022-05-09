@@ -27,24 +27,23 @@ function initial_environment() {
   # install require software
   yum -y install vim net-tools bridge-utils qemu-kvm libvirt virt-install libguestfs libguestfs-tools
   systemctl enable --now libvirtd.service
-}
-
-function initial_directory() {
+  # initial directory
   mkdir -p /kvm/{vdisks,isos,modify}
-  if [ ! -f /kvm/isos/CentOS-7-x86_64-Minimal-2009.iso ];then
-    curl -o /kvm/isos/CentOS-7-x86_64-Minimal-2009.iso https://mirrors.ustc.edu.cn/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso
-  fi
 }
 
 function upgrade_kernel() {
   # upgrade kernel
+  kernel_package_name=$(curl -s https://elrepo.org/linux/kernel/el7/x86_64/RPMS/ | grep kernel-lt | awk -F"href=" 'NR==1{ print $2 }' | awk -F'"' '{ print $2 }')
+  kernel_devel_name=$(curl -s https://elrepo.org/linux/kernel/el7/x86_64/RPMS/ | grep kernel-lt-devel | awk -F"href=" 'NR==1{ print $2 }' | awk -F'"' '{ print $2 }')
+  
   yum -y update --exclude=kernel*
-  if [ ! -f kernel-lt-5.4.188-1.el7.elrepo.x86_64.rpm ];then
-    curl -o kernel-lt-5.4.188-1.el7.elrepo.x86_64.rpm https://elrepo.org/linux/kernel/el7/x86_64/RPMS/kernel-lt-5.4.188-1.el7.elrepo.x86_64.rpm
+  if [ ! -f $kernel_package_name];then
+    curl -o $kernel_package_name https://elrepo.org/linux/kernel/el7/x86_64/RPMS/$kernel_package_name
   fi
-  if [ ! -f kernel-lt-devel-5.4.188-1.el7.elrepo.x86_64.rpm ];then
-    curl -o kernel-lt-devel-5.4.188-1.el7.elrepo.x86_64.rpm https://elrepo.org/linux/kernel/el7/x86_64/RPMS/kernel-lt-devel-5.4.188-1.el7.elrepo.x86_64.rpm
+  if [ ! -f $kernel_devel_name ];then
+    curl -o $kernel_devel_name https://elrepo.org/linux/kernel/el7/x86_64/RPMS/$kernel_devel_name
   fi
+
   yum -y localinstall kernel-lt-*
   grub2-set-default 0 && grub2-mkconfig -o /etc/grub2.cfg
   grubby --args="user_namespace.enable=1" --update-kernel="$(grubby --default-kernel)"
@@ -52,7 +51,6 @@ function upgrade_kernel() {
 }
 
 initial_environment
-initial_directory
 upgrade_kernel
 
 # reboot machines, continue load kernel kvm module
