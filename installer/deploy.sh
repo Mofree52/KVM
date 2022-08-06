@@ -37,10 +37,10 @@ function upgrade_kernel() {
   kernel_devel_name=$(curl -s https://elrepo.org/linux/kernel/el7/x86_64/RPMS/ | grep kernel-lt-devel | awk -F"href=" 'NR==1{ print $2 }' | awk -F'"' '{ print $2 }')
   
   yum -y update --exclude=kernel*
-  if [ ! -f $kernel_package_name];then
+  if [ ! -f $kernel_package_name ];then
     curl -o $kernel_package_name https://elrepo.org/linux/kernel/el7/x86_64/RPMS/$kernel_package_name
   fi
-  if [ ! -f $kernel_devel_name];then
+  if [ ! -f $kernel_devel_name ];then
     curl -o $kernel_devel_name https://elrepo.org/linux/kernel/el7/x86_64/RPMS/$kernel_devel_name
   fi
 
