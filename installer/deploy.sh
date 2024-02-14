@@ -55,3 +55,5 @@ upgrade_kernel
 
 # reboot machines, continue load kernel kvm module
 reboot
+
+## this is a test deploy.sh modified
